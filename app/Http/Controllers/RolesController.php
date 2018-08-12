@@ -89,8 +89,7 @@ class RolesController extends Controller
     public function edit($id)
     {
         $role = Role::findOrFail($id);
-//        $permissions = Permission::all();
-        $permissions =[];
+        $permissions = Permission::all();
 
         return view('roles.edit', compact('role','permissions'));
     }
@@ -108,18 +107,28 @@ class RolesController extends Controller
 
         $this->validate($request, [
             'name'=>'required|max:10|unique:roles,name,'.$id,
-//            'permissions' =>'required',
+            'permissions' =>'required',
         ]);
 
         $input = $request->except(['permissions']);
 
         $role->fill($input)->save();
 
-        //Get All permissions
+        $permissions = $request['permissions'];
 
-        //Remove all permissions associated with role
 
-        //get the permission from the checkboxes  and find them in the DB and assign permission to the role
+        $p_all = Permission::all();//Get all permissions
+
+        foreach ($p_all as $p) {
+            $role->revokePermissionTo($p); //Remove all permissions associated with role
+        }
+
+        foreach ($permissions as $permission) {
+            $p = Permission::where('id', '=', $permission)->firstOrFail(); //Get corresponding form //permission in db
+            $role->givePermissionTo($p);  //Assign permission to role
+        }
+
+
 
 
 
