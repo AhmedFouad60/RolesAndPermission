@@ -104,7 +104,30 @@ class RolesController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $role=Role::findOrFail($id); //get the role with the given $id
 
+        $this->validate($request, [
+            'name'=>'required|max:10|unique:roles,name,'.$id,
+//            'permissions' =>'required',
+        ]);
+
+        $input = $request->except(['permissions']);
+
+        $role->fill($input)->save();
+
+        //Get All permissions
+
+        //Remove all permissions associated with role
+
+        //get the permission from the checkboxes  and find them in the DB and assign permission to the role
+
+
+
+
+
+        return redirect()->route('roles.index')
+            ->with('flash_message',
+                'Role'. $role->name.' updated!');
     }
 
     /**
@@ -115,6 +138,9 @@ class RolesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $role=Role::findOrFail($id);
+        $role->delete();
+        return redirect()->route('roles.index')
+                ->with('flash_message','Role deleted!');
     }
 }
